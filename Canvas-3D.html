@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Search Engines</title>
+    <!-- Include three.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Include OrbitControls for camera controls -->
+    <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+	<script>
+	/*
+	
+	Ensure that the following libraries are included: three.js, OrbitControls.js.
+
+	Use a modern JavaScript syntax (ES6+).
+
+	The search engines to be displayed are Google, Bing, Yahoo, DuckDuckGo, and Startpage.
+
+	Each link should open in a new tab when clicked.
+
+	Implement a simple animation where the links rotate around the Y-axis.
+
+	Add a background gradient that transitions from dark blue to black.
+
+	Include comments for better understanding of the code.
+	
+	*/
+	</script>
+</head>
+<body>
+<script>
+    // Set up the scene, camera, and renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Add a background gradient
+    const canvas = renderer.domElement;
+    const context = canvas.getContext('2d');
+    const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#000046'); // Dark blue
+    gradient.addColorStop(1, '#1CB5E0'); // Black
+    scene.background = new THREE.CanvasTexture(canvas);
+
+    // Create a group to hold all the links
+    const linkGroup = new THREE.Group();
+    scene.add(linkGroup);
+
+    // Define the search engines and their URLs
+    const searchEngines = [
+        { name: 'Google', url: 'https://www.google.com' },
+        { name: 'Bing', url: 'https://www.bing.com' },
+        { name: 'Yahoo', url: 'https://www.yahoo.com' },
+        { name: 'DuckDuckGo', url: 'https://www.duckduckgo.com' },
+        { name: 'Startpage', url: 'https://www.startpage.com' }
+    ];
+
+    // Create a font loader to load the text font
+    const fontLoader = new THREE.FontLoader();
+    fontLoader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
+        searchEngines.forEach((engine, index) => {
+            // Create a text geometry for each search engine name
+            const textGeometry = new THREE.TextGeometry(engine.name, {
+                font: font,
+                size: 0.5,
+                height: 0.1,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 0.03,
+                bevelSize: 0.02,
+                bevelOffset: 0,
+                bevelSegments: 5
+            });
+
+            // Create a material for the text
+            const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+            const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+            // Position each link in a circle around the origin
+            const angle = (index / searchEngines.length) * Math.PI * 2;
+            textMesh.position.set(Math.cos(angle) * 3, Math.sin(angle) * 3, 0);
+
+            // Add click event to open the URL in a new tab
+            textMesh.userData.url = engine.url;
+            textMesh.addEventListener('click', function () {
+                window.open(this.userData.url, '_blank');
+            });
+
+            // Add the text mesh to the link group
+            linkGroup.add(textMesh);
+        });
+    });
+
+    // Set up OrbitControls for camera interaction
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    // Position the camera
+    camera.position.z = 5;
+
+    // Animation loop
+    function animate() {
+        requestAnimationFrame(animate);
+
+        // Rotate the link group around the Y-axis
+        linkGroup.rotation.y += 0.01;
+
+        // Render the scene
+        renderer.render(scene, camera);
+    }
+
+    // Start the animation loop
+    animate();
+
+    // Handle window resize to adjust the renderer size
+    window.addEventListener('resize', () => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+    });
+</script>
+</body>
+</html>
